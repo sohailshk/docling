@@ -1143,6 +1143,14 @@ class MsPowerpointDocumentBackend(DeclarativeDocumentBackend, PaginatedDocumentB
             p_text = "".join(text for _, text in fragments)
             has_equations = any(label == DocItemLabel.FORMULA for label, _ in fragments)
 
+            # A blank paragraph is spacing, so it adds no empty list item or
+            # text item. A blank paragraph that is not a list item still ends
+            # the open lists.
+            if not has_equations and not p_text.strip():
+                if not is_a_list:
+                    open_lists.clear()
+                continue
+
             prov = make_prov(p_text)
 
             if is_a_list:
